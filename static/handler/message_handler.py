@@ -8,6 +8,11 @@ from dotenv import load_dotenv
 async def call_dify(user_input: str="", user: str="default-user", token: str=os.getenv("DIFY_API_KEY"), url: str=os.getenv("DIFY_URL")):
     load_dotenv()
 
+    if token is None:
+        token = os.getenv("DIFY_API_KEY")
+    if url is None:
+        url = os.getenv("DIFY_URL")
+
     headers = {
         "Authorization": "Bearer {}".format(token),
         "Content-Type": "application/json"
@@ -38,10 +43,11 @@ async def call_dify(user_input: str="", user: str="default-user", token: str=os.
             return content
         return 'dify 调用异常'
 
-def daily_reminder_dify():
-    call_dify(user_input="每日提醒", token=os.getenv("DAILY_REMINDER_API_KEY"))
+async def daily_reminder_dify():
+    await call_dify(user_input="每日提醒", token=os.getenv("DAILY_REMINDER_API_KEY"), url=os.getenv("DIFY_URL"))
 
 
 if __name__ == '__main__':
     load_dotenv()
-    asyncio.run(call_dify())
+    asyncio.run(daily_reminder_dify())
+    # daily_reminder_dify()

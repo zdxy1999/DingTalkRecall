@@ -57,14 +57,19 @@ class CalcBotHandler(dingtalk_stream.ChatbotHandler):
     async def process(self, callback: dingtalk_stream.CallbackMessage):
         self.logger.info('receive callback: %s' % callback)
         incoming_message = dingtalk_stream.ChatbotMessage.from_dict(callback.data)
-        expression = incoming_message.text.content.strip()
+        self.reply_text("答案正在生成中...", incoming_message)
         try:
             result = await call_dify(incoming_message.text.content)
         except Exception as e:
             result = 'Error: %s' % e
+            self.reply_text("！！！答案生成异常" + result, incoming_message)
+            return AckMessage.STATUS_SYSTEM_EXCEPTION, 'OK'
+
         response = result
         # self.reply_markdown_card(at_sender=True, title="计算结果", markdown=response, incoming_message=incoming_message)
         md_title = "title"+str(uuid.uuid4()).replace('-', '')[:10]
+
+        self.reply_text("以下是对问题的答案", incoming_message)
         self.reply_markdown(title=md_title, text=response, incoming_message=incoming_message)
         return AckMessage.STATUS_OK, 'OK'
 
