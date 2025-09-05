@@ -1,0 +1,7 @@
+Flask~=3.1.2
+dotenv~=0.9.9
+python-dotenv~=1.1.1
+certifi~=2025.8.3
+aiohttp~=3.12.15
+APScheduler~=3.11.0
+dingtalk_stream~=0.24.2
