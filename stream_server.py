@@ -42,7 +42,7 @@ def setup_scheduler():
     # CronTrigger(hour=18, minute=30) 表示每天18:30执行
     scheduler.add_job(
         func=daily_reminder_dify,
-        trigger=CronTrigger(hour=17, minute=8),
+        trigger=CronTrigger(hour=9, minute=0),
         id='daily_reminder',
         name='Daily Reminder Task',
         replace_existing=True
