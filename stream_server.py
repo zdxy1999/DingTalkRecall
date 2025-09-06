@@ -5,8 +5,10 @@ import logging
 import ssl
 import os
 import uuid
+import pytz
 
 import certifi  # 添加这一行
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dingtalk_stream import AckMessage
 import dingtalk_stream
 
@@ -32,7 +34,7 @@ def setup_logger():
 
 def setup_scheduler():
     """设置定时任务"""
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(timezone=pytz.timezone('Asia/Shanghai'))
 
     # 添加每日提醒任务，每天上午9点执行
     # 您可以根据需要修改时间，例如：
@@ -40,7 +42,7 @@ def setup_scheduler():
     # CronTrigger(hour=18, minute=30) 表示每天18:30执行
     scheduler.add_job(
         func=daily_reminder_dify,
-        trigger=CronTrigger(hour=9, minute=0),
+        trigger=CronTrigger(hour=17, minute=8),
         id='daily_reminder',
         name='Daily Reminder Task',
         replace_existing=True
@@ -77,6 +79,7 @@ class CalcBotHandler(dingtalk_stream.ChatbotHandler):
 def main():
     load_dotenv()
     logger = setup_logger()
+    setup_scheduler()
     #options = define_options()
 
     credential = dingtalk_stream.Credential(os.getenv('DINGTALK_CLIENT_ID'), os.getenv('DINGTALK_CLIENT_SECRET'))

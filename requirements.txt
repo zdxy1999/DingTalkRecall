@@ -5,3 +5,5 @@ certifi~=2025.8.3
 aiohttp~=3.12.15
 APScheduler~=3.11.0
 dingtalk_stream~=0.24.2
+
+pytz~=2025.2

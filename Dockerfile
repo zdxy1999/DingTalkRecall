@@ -1,6 +1,10 @@
 # 使用官方 Python 运行时作为基础镜像
 FROM docker.xuanyuan.me/python:3.12-slim
 
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # 设置工作目录
 WORKDIR /app
 

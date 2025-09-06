@@ -5,7 +5,8 @@ import aiohttp
 from dotenv import load_dotenv
 
 
-async def call_dify(user_input: str="", user: str="default-user", token: str=os.getenv("DIFY_API_KEY"), url: str=os.getenv("DIFY_URL")):
+async def call_dify(user_input: str = "", user: str = "default-user", token: str = os.getenv("DIFY_API_KEY"),
+                    url: str = os.getenv("DIFY_URL")):
     load_dotenv()
 
     if token is None:
@@ -43,11 +44,12 @@ async def call_dify(user_input: str="", user: str="default-user", token: str=os.
             return content
         return 'dify 调用异常'
 
-async def daily_reminder_dify():
-    await call_dify(user_input="每日提醒", token=os.getenv("DAILY_REMINDER_API_KEY"), url=os.getenv("DIFY_URL"))
+
+def daily_reminder_dify():
+    asyncio.run(call_dify(user_input="每日提醒", token=os.getenv("DAILY_REMINDER_API_KEY"), url=os.getenv("DIFY_URL")))
 
 
 if __name__ == '__main__':
     load_dotenv()
-    asyncio.run(daily_reminder_dify())
+    daily_reminder_dify()
     # daily_reminder_dify()
