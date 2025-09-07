@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 
 import aiohttp
@@ -40,7 +41,15 @@ async def call_dify(user_input: str = "", user: str = "default-user", token: str
 
             json_response = await response.json()
             print("JSON 响应:", json_response)
-            content = json_response.get("data", {}).get("outputs", "").get("text", "")
+
+            data = json.loads(response_text)
+
+            if data['data']['status'] == 'failed':
+                content = 'dify调用错误：' + data['data']['error']
+            else:
+                content = json_response.get("data", {}).get("outputs", "").get("text", "")
+
+
             return content
         return 'dify 调用异常'
 
