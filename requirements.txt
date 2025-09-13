@@ -7,3 +7,4 @@ APScheduler~=3.11.0
 dingtalk_stream~=0.24.2
 
 pytz~=2025.2
+requests~=2.32.5
