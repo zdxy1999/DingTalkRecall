@@ -16,6 +16,7 @@ from static.handler.message_handler import call_dify, daily_reminder_dify
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from cachetools import TTLCache
 
 # 添加以下代码来设置证书路径
 os.environ['SSL_CERT_FILE'] = certifi.where()
@@ -50,29 +51,45 @@ def setup_scheduler():
     scheduler.start()
     return scheduler
 
+
 class CalcBotHandler(dingtalk_stream.ChatbotHandler):
     def __init__(self, logger: logging.Logger = None):
         super(dingtalk_stream.ChatbotHandler, self).__init__()
         if logger:
             self.logger = logger
 
+        # 使用TTLCache自动处理过期
+        self.cache = TTLCache(maxsize=1000, ttl=180)  # 最多1000个条目，3分钟过期
+
     async def process(self, callback: dingtalk_stream.CallbackMessage):
         self.logger.info('receive callback: %s' % callback)
         incoming_message = dingtalk_stream.ChatbotMessage.from_dict(callback.data)
+
+        content = incoming_message.text.content
+
+        # 检查缓存
+        if content in self.cache:
+            self.logger.info(f'使用缓存结果 for: {content}')
+            self.reply_text("以下是对问题的答案（来自缓存）", incoming_message)
+            md_title = "title" + str(uuid.uuid4()).replace('-', '')[:10]
+            self.reply_markdown(title=md_title, text=self.cache[content], incoming_message=incoming_message)
+            return AckMessage.STATUS_OK, 'OK'
+
         self.reply_text("答案正在生成中...", incoming_message)
         try:
-            result = await call_dify(incoming_message.text.content)
+            result = await call_dify(content)
+            # 存入缓存
+            self.cache[content] = result
         except Exception as e:
             result = 'Error: %s' % e
             self.reply_text("！！！答案生成异常" + result, incoming_message)
             return AckMessage.STATUS_SYSTEM_EXCEPTION, 'OK'
 
         response = result
-        # self.reply_markdown_card(at_sender=True, title="计算结果", markdown=response, incoming_message=incoming_message)
-        md_title = "title"+str(uuid.uuid4()).replace('-', '')[:10]
-
         self.reply_text("以下是对问题的答案", incoming_message)
+        md_title = "title" + str(uuid.uuid4()).replace('-', '')[:10]
         self.reply_markdown(title=md_title, text=response, incoming_message=incoming_message)
+
         return AckMessage.STATUS_OK, 'OK'
 
 

@@ -8,3 +8,4 @@ dingtalk_stream~=0.24.2
 
 pytz~=2025.2
 requests~=2.32.5
+cachetools~=6.2.0
