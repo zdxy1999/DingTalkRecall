@@ -59,7 +59,7 @@ class CalcBotHandler(dingtalk_stream.ChatbotHandler):
             self.logger = logger
 
         # 使用TTLCache自动处理过期
-        self.cache = TTLCache(maxsize=1000, ttl=180)  # 最多1000个条目，3分钟过期
+        self.cache = TTLCache(maxsize=1000, ttl=300)  # 最多1000个条目，3分钟过期
 
     async def process(self, callback: dingtalk_stream.CallbackMessage):
         self.logger.info('receive callback: %s' % callback)
@@ -70,9 +70,10 @@ class CalcBotHandler(dingtalk_stream.ChatbotHandler):
         # 检查缓存
         if content in self.cache:
             self.logger.info(f'使用缓存结果 for: {content}')
-            self.reply_text("以下是对问题的答案（来自缓存）", incoming_message)
+            #缓存里面有，说明已经回复过，不用重新恢复一遍
+            #self.reply_text("以下是对问题的答案（来自缓存）", incoming_message)
             md_title = "title" + str(uuid.uuid4()).replace('-', '')[:10]
-            self.reply_markdown(title=md_title, text=self.cache[content], incoming_message=incoming_message)
+            #self.reply_markdown(title=md_title, text=self.cache[content], incoming_message=incoming_message)
             return AckMessage.STATUS_OK, 'OK'
 
         self.reply_text("答案正在生成中...", incoming_message)
